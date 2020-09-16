@@ -1,0 +1,19 @@
+---
+title: "Project 1"
+author: "Kolton Wiebusch"
+date: "9/15/2020"
+output: 
+      github_document:
+        toc: true
+---
+
+```{r render, eval=FALSE, include=FALSE}
+rmarkdown::render("Project_1.Rmd", output_file = "README.md")
+```
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# test
+
+### test 2
