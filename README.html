@@ -639,6 +639,51 @@ body {
 <span id="cb2-23"><a href="#cb2-23"></a>    }</span>
 <span id="cb2-24"><a href="#cb2-24"></a>  <span class="kw">return</span>(totals)</span>
 <span id="cb2-25"><a href="#cb2-25"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a>getFranchiseSeasonRecords &lt;-<span class="st"> </span><span class="cf">function</span>(<span class="dt">ID =</span> <span class="ot">NULL</span>, ...){</span>
+<span id="cb3-2"><a href="#cb3-2"></a>  <span class="cf">if</span>(<span class="kw">is.character</span>(ID)){</span>
+<span id="cb3-3"><a href="#cb3-3"></a>  recordsURL &lt;-<span class="st"> </span><span class="kw">GET</span>(<span class="st">&quot;https://records.nhl.com/site/api/franchise-season-records&quot;</span>)</span>
+<span id="cb3-4"><a href="#cb3-4"></a>  records &lt;-<span class="st"> </span><span class="kw">content</span>(recordsURL, <span class="st">&quot;text&quot;</span>)</span>
+<span id="cb3-5"><a href="#cb3-5"></a>  records &lt;-<span class="st"> </span><span class="kw">fromJSON</span>(records, <span class="dt">simplifyDataFrame =</span> <span class="ot">TRUE</span>, <span class="dt">flatten =</span> <span class="ot">TRUE</span>)</span>
+<span id="cb3-6"><a href="#cb3-6"></a>  records &lt;-<span class="st"> </span><span class="kw">as.data.frame</span>(records)</span>
+<span id="cb3-7"><a href="#cb3-7"></a>  <span class="kw">return</span>(<span class="kw">filter</span>(records, data.franchiseName <span class="op">==</span><span class="st"> </span>ID))</span>
+<span id="cb3-8"><a href="#cb3-8"></a>  }<span class="cf">else</span> <span class="cf">if</span>(<span class="kw">is.numeric</span>(ID)){</span>
+<span id="cb3-9"><a href="#cb3-9"></a>  recordsURL &lt;-<span class="st"> </span><span class="kw">GET</span>(<span class="kw">paste0</span>(<span class="st">&quot;https://records.nhl.com/site/api/franchise-season-records?cayenneExp=franchiseId=&quot;</span>, ID))</span>
+<span id="cb3-10"><a href="#cb3-10"></a>  records &lt;-<span class="st"> </span><span class="kw">content</span>(recordsURL, <span class="st">&quot;text&quot;</span>)</span>
+<span id="cb3-11"><a href="#cb3-11"></a>  records &lt;-<span class="st"> </span><span class="kw">fromJSON</span>(records, <span class="dt">simplifyDataFrame =</span> <span class="ot">TRUE</span>, <span class="dt">flatten =</span> <span class="ot">TRUE</span>)</span>
+<span id="cb3-12"><a href="#cb3-12"></a>  records &lt;-<span class="st"> </span><span class="kw">as.data.frame</span>(records)</span>
+<span id="cb3-13"><a href="#cb3-13"></a>  <span class="kw">return</span>(records)</span>
+<span id="cb3-14"><a href="#cb3-14"></a>  }</span>
+<span id="cb3-15"><a href="#cb3-15"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a>getFranchiseGoalieRecords &lt;-<span class="st"> </span><span class="cf">function</span>(<span class="dt">ID =</span> <span class="ot">NULL</span>, ...){</span>
+<span id="cb4-2"><a href="#cb4-2"></a>    <span class="cf">if</span>(<span class="kw">is.character</span>(ID)){</span>
+<span id="cb4-3"><a href="#cb4-3"></a>  goalie &lt;-<span class="st"> </span><span class="kw">GET</span>(<span class="st">&quot;https://records.nhl.com/site/api/franchise-goalie-records&quot;</span>)</span>
+<span id="cb4-4"><a href="#cb4-4"></a>  goalie &lt;-<span class="st"> </span><span class="kw">content</span>(goalie, <span class="st">&quot;text&quot;</span>)</span>
+<span id="cb4-5"><a href="#cb4-5"></a>  goalie &lt;-<span class="st"> </span><span class="kw">fromJSON</span>(goalie, <span class="dt">simplifyDataFrame =</span> <span class="ot">TRUE</span>, <span class="dt">flatten =</span> <span class="ot">TRUE</span>)</span>
+<span id="cb4-6"><a href="#cb4-6"></a>  goalie &lt;-<span class="st"> </span><span class="kw">as.data.frame</span>(goalie)</span>
+<span id="cb4-7"><a href="#cb4-7"></a>  <span class="kw">return</span>(<span class="kw">filter</span>(goalie, data.franchiseName <span class="op">==</span><span class="st"> </span>ID))</span>
+<span id="cb4-8"><a href="#cb4-8"></a>  }<span class="cf">else</span> <span class="cf">if</span>(<span class="kw">is.numeric</span>(ID)){</span>
+<span id="cb4-9"><a href="#cb4-9"></a>  goalie &lt;-<span class="st"> </span><span class="kw">GET</span>(<span class="kw">paste0</span>(<span class="st">&quot;https://records.nhl.com/site/api/franchise-goalie-records?cayenneExp=franchiseId=&quot;</span>, ID))</span>
+<span id="cb4-10"><a href="#cb4-10"></a>  goalie &lt;-<span class="st"> </span><span class="kw">content</span>(goalie, <span class="st">&quot;text&quot;</span>)</span>
+<span id="cb4-11"><a href="#cb4-11"></a>  goalie &lt;-<span class="st"> </span><span class="kw">fromJSON</span>(goalie, <span class="dt">simplifyDataFrame =</span> <span class="ot">TRUE</span>, <span class="dt">flatten =</span> <span class="ot">TRUE</span>)</span>
+<span id="cb4-12"><a href="#cb4-12"></a>  goalie &lt;-<span class="st"> </span><span class="kw">as.data.frame</span>(goalie)</span>
+<span id="cb4-13"><a href="#cb4-13"></a>  <span class="kw">return</span>(goalie)</span>
+<span id="cb4-14"><a href="#cb4-14"></a>  }</span>
+<span id="cb4-15"><a href="#cb4-15"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a>getFranchiseSkaterRecords &lt;-<span class="st"> </span><span class="cf">function</span>(<span class="dt">ID =</span> <span class="ot">NULL</span>, ...){</span>
+<span id="cb5-2"><a href="#cb5-2"></a>  <span class="cf">if</span>(<span class="kw">is.character</span>(ID)){</span>
+<span id="cb5-3"><a href="#cb5-3"></a>  skater &lt;-<span class="st"> </span><span class="kw">GET</span>(<span class="st">&quot;https://records.nhl.com/site/api/franchise-skater-records&quot;</span>)</span>
+<span id="cb5-4"><a href="#cb5-4"></a>  skater &lt;-<span class="st"> </span><span class="kw">content</span>(skater, <span class="st">&quot;text&quot;</span>)</span>
+<span id="cb5-5"><a href="#cb5-5"></a>  skater &lt;-<span class="st"> </span><span class="kw">fromJSON</span>(skater, <span class="dt">simplifyDataFrame =</span> <span class="ot">TRUE</span>, <span class="dt">flatten =</span> <span class="ot">TRUE</span>)</span>
+<span id="cb5-6"><a href="#cb5-6"></a>  skater &lt;-<span class="st"> </span><span class="kw">as.data.frame</span>(skater)</span>
+<span id="cb5-7"><a href="#cb5-7"></a>  <span class="kw">return</span>(<span class="kw">filter</span>(skater, data.franchiseName <span class="op">==</span><span class="st"> </span>ID))</span>
+<span id="cb5-8"><a href="#cb5-8"></a>  }<span class="cf">else</span> <span class="cf">if</span>(<span class="kw">is.numeric</span>(ID)){</span>
+<span id="cb5-9"><a href="#cb5-9"></a>  skater &lt;-<span class="st"> </span><span class="kw">GET</span>(<span class="kw">paste0</span>(<span class="st">&quot;https://records.nhl.com/site/api/franchise-skater-records?cayenneExp=franchiseId=&quot;</span>, ID))</span>
+<span id="cb5-10"><a href="#cb5-10"></a>  skater &lt;-<span class="st"> </span><span class="kw">content</span>(skater, <span class="st">&quot;text&quot;</span>)</span>
+<span id="cb5-11"><a href="#cb5-11"></a>  skater &lt;-<span class="st"> </span><span class="kw">fromJSON</span>(skater, <span class="dt">simplifyDataFrame =</span> <span class="ot">TRUE</span>, <span class="dt">flatten =</span> <span class="ot">TRUE</span>)</span>
+<span id="cb5-12"><a href="#cb5-12"></a>  skater &lt;-<span class="st"> </span><span class="kw">as.data.frame</span>(skater)</span>
+<span id="cb5-13"><a href="#cb5-13"></a>  <span class="kw">return</span>(skater)</span>
+<span id="cb5-14"><a href="#cb5-14"></a>  }</span>
+<span id="cb5-15"><a href="#cb5-15"></a>}</span></code></pre></div>
 
 </body>
 </html>
