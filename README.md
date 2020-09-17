@@ -3,12 +3,14 @@ Project 1
 Kolton Wiebusch
 9/15/2020
 
-  - [Loaded Packages](#loaded-packages)
+  - [Required Packages](#required-packages)
   - [NHL Records API](#nhl-records-api)
+  - [NHL Stats API](#nhl-stats-api)
+  - [Wrapper Function](#wrapper-function)
 
-# Loaded Packages
+# Required Packages
 
-These are the packges used in this project.
+These are the packages used in this project.
 
 ``` r
 library(tidyverse)
@@ -42,7 +44,7 @@ getFranchiseTotals <- function(ID = NULL, ...){
   totals <- fromJSON(totals, simplifyDataFrame = TRUE, flatten = TRUE)
   totals <- as.data.frame(totals)
     if(is.numeric(ID)){
-      return(filter(totals, data.teamId == ID))
+      return(filter(totals, data.franchiseId == ID))
     } else if(is.character(ID)){
       return(filter(totals, data.teamName == ID))
     }
@@ -101,5 +103,61 @@ getFranchiseSkaterRecords <- function(ID = NULL, ...){
   skater <- as.data.frame(skater)
   return(skater)
   }
+}
+```
+
+# NHL Stats API
+
+This entails the creating of the function to call on the NHL stats data
+
+``` r
+   #Setting up modifiers
+  "?expand=team.roster" -> mfirst
+  "?expand=person.names" -> msecond
+  "?expand=team.schedule.next" -> mthird
+  "?expand=team.schedule.previous" -> mfourth
+  "?expand=team.stats" -> mfifth
+  "?expand=team.roster&season=" -> msixth
+  "?teamId=" -> mseventh
+  "?stats=statsSingleSeasonPlayoffs" -> meighth
+  
+  #Creating function to get stats 
+getNHLStats <- function(ID = NULL, modifier = NULL, ...){
+    stats <- GET("https://statsapi.web.nhl.com/api/v1/teams")
+    stats <- content(stats, "text")
+    stats <- fromJSON(stats, simplifyDataFrame = TRUE, flatten = TRUE)
+    stats <- as.data.frame(stats)
+    if(is.numeric(ID) & is.character(modifier)){
+      stats <- GET(paste0("https://statsapi.web.nhl.com/api/v1/teams/", ID, "/", modifier))
+      stats <- content(stats, "text")
+      stats <- fromJSON(stats, simplifyDataFrame = TRUE, flatten = TRUE)
+      stats <- as.data.frame(stats)
+      return(stats)
+    }else if(is.character(ID) & is.character(modifier)){
+      stats <- GET(paste0("https://statsapi.web.nhl.com/api/v1/teams/", ID, "/", modifier))
+      stats <- content(stats, "text")
+      stats <- fromJSON(stats, simplifyDataFrame = TRUE, flatten = TRUE)
+      stats <- as.data.frame(stats)
+      return(stats)
+    }else if(is.numeric(ID)){
+      return(filter(stats, teams.franchiseId == ID))
+    } else if(is.character(ID)){
+      return(filter(stats, teams.name == ID | teams.teamName == ID | teams.abbreviation == ID | teams.shortName == ID))
+    }
+  return(stats)
+}
+```
+
+# Wrapper Function
+
+This function acts as a wrapper for all the previously discussed
+endpoints for NHL records and stats.
+
+``` r
+getNHL <- function(FUN, ID = NULL, m = NULL, ...){
+  FUN <- match.fun(FUN)
+  ID <- ID
+  modifier <- m
+  return(FUN(ID, modifier, ...))
 }
 ```
