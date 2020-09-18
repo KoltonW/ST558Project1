@@ -616,6 +616,8 @@ body {
 <li><a href="#joining-of-datasets">Joining of Datasets</a></li>
 <li><a href="#new-variables">New variables</a></li>
 <li><a href="#contingency-tables">Contingency tables</a></li>
+<li><a href="#numerical-summaries">Numerical Summaries</a></li>
+<li><a href="#plots">Plots</a></li>
 </ul></li>
 </ul>
 <h1 id="purpose">Purpose</h1>
@@ -761,7 +763,9 @@ body {
 <p>Creating new variables for later analysis</p>
 <div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a>joinedStats <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">mutate</span>(<span class="dt">goalDifferential =</span> data.goalsFor <span class="op">-</span><span class="st"> </span>data.goalsAgainst) -&gt;<span class="st"> </span>joinedStats</span>
 <span id="cb9-2"><a href="#cb9-2"></a>joinedStats <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">mutate</span>(<span class="dt">penaltyMinsPerGame =</span> data.penaltyMinutes<span class="op">/</span>data.gamesPlayed) -&gt;<span class="st"> </span>joinedStats</span>
-<span id="cb9-3"><a href="#cb9-3"></a>joinedStats <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">mutate</span>(<span class="dt">winPercentage =</span> data.wins<span class="op">/</span>data.gamesPlayed) -&gt;<span class="st"> </span>joinedStats</span></code></pre></div>
+<span id="cb9-3"><a href="#cb9-3"></a>joinedStats <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">mutate</span>(<span class="dt">winPercentage =</span> data.wins<span class="op">/</span>data.gamesPlayed) -&gt;<span class="st"> </span>joinedStats</span>
+<span id="cb9-4"><a href="#cb9-4"></a>joinedStats <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">mutate</span>(<span class="dt">shutoutPercentage =</span> data.shutouts<span class="op">/</span>data.wins) -&gt;<span class="st"> </span>joinedStats</span>
+<span id="cb9-5"><a href="#cb9-5"></a>joinedStats <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">mutate</span>(<span class="dt">shootoutWinPercentage =</span> ((data.shootoutWins)<span class="op">/</span>(data.shootoutWins <span class="op">+</span><span class="st"> </span>data.shootoutLosses))) -&gt;<span class="st"> </span>joinedStats</span></code></pre></div>
 <div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a><span class="co">#This code chunk separates joinedStats into Regular season and playoff stats for active teams</span></span>
 <span id="cb10-2"><a href="#cb10-2"></a>joinedStats<span class="op">$</span>data.gameTypeId &lt;-<span class="st"> </span><span class="kw">as.factor</span>(joinedStats<span class="op">$</span>data.gameTypeId)</span>
 <span id="cb10-3"><a href="#cb10-3"></a><span class="kw">levels</span>(joinedStats<span class="op">$</span>data.gameTypeId) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;RegularSeason&quot;</span>, <span class="st">&quot;Playoffs&quot;</span>)</span>
@@ -769,29 +773,120 @@ body {
 <span id="cb10-5"><a href="#cb10-5"></a>joinedStats <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(data.gameTypeId <span class="op">==</span><span class="st"> &quot;Playoffs&quot;</span> <span class="op">&amp;</span><span class="st"> </span>teams.division.name <span class="op">!=</span><span class="st"> </span><span class="kw">is.na</span>(joinedStats<span class="op">$</span>teams.division.name)) -&gt;<span class="st"> </span>PlayoffStats</span></code></pre></div>
 <h2 id="contingency-tables">Contingency tables</h2>
 <p>Here, some contingency tables are returned. For the first one, you can see a breakdown of how many teams are in each division and conference overall. For the second and third tables, I wanted to take a closer look at my <em>favorite</em> team, the <strong>St. Louis Blues</strong>. The second table gives a breakdown of their current roster by position type, and the third table goes a step further and gives a breakdown of the number of position names within each position type.</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a><span class="kw">table</span>(RegularSeasonStats<span class="op">$</span>teams.conference.name, RegularSeasonStats<span class="op">$</span>teams.division.name)</span></code></pre></div>
-<pre><code>##          
-##           Atlantic Central Metropolitan Pacific
-##   Eastern        8       0            8       0
-##   Western        0       7            0       8
-</code></pre>
-<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a><span class="co">#Return the Blues roster and break it down</span></span>
-<span id="cb13-2"><a href="#cb13-2"></a><span class="kw">getNHLStats</span>(<span class="dv">19</span>, mfirst) -&gt;<span class="st"> </span>g</span>
-<span id="cb13-3"><a href="#cb13-3"></a><span class="kw">as.data.frame</span>(g[[<span class="dv">31</span>]]) -&gt;<span class="st"> </span>BluesRoster</span>
-<span id="cb13-4"><a href="#cb13-4"></a><span class="kw">table</span>(BluesRoster<span class="op">$</span>position.type)</span></code></pre></div>
-<pre><code>## 
-## Defenseman    Forward     Goalie 
-##         11         18          2
-</code></pre>
-<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1"></a><span class="kw">table</span>(BluesRoster<span class="op">$</span>position.name, BluesRoster<span class="op">$</span>position.type)</span></code></pre></div>
-<pre><code>##             
-##              Defenseman Forward Goalie
-##   Center              0       8      0
-##   Defenseman         11       0      0
-##   Goalie              0       0      2
-##   Left Wing           0       7      0
-##   Right Wing          0       3      0
-</code></pre>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a><span class="kw">kable</span>(<span class="kw">table</span>(RegularSeasonStats<span class="op">$</span>teams.conference.name, RegularSeasonStats<span class="op">$</span>teams.division.name))</span></code></pre></div>
+<table>
+<thead>
+<tr class="header">
+<th align="left"></th>
+<th align="right">Atlantic</th>
+<th align="right">Central</th>
+<th align="right">Metropolitan</th>
+<th align="right">Pacific</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Eastern</td>
+<td align="right">8</td>
+<td align="right">0</td>
+<td align="right">8</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">Western</td>
+<td align="right">0</td>
+<td align="right">7</td>
+<td align="right">0</td>
+<td align="right">8</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a><span class="co">#Return the Blues roster and break it down</span></span>
+<span id="cb12-2"><a href="#cb12-2"></a><span class="kw">getNHLStats</span>(<span class="dv">19</span>, mfirst) -&gt;<span class="st"> </span>g</span>
+<span id="cb12-3"><a href="#cb12-3"></a><span class="kw">as.data.frame</span>(g[[<span class="dv">31</span>]]) -&gt;<span class="st"> </span>BluesRoster</span>
+<span id="cb12-4"><a href="#cb12-4"></a><span class="kw">kable</span>(<span class="kw">table</span>(BluesRoster<span class="op">$</span>position.type))</span></code></pre></div>
+<table>
+<thead>
+<tr class="header">
+<th align="left">Var1</th>
+<th align="right">Freq</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Defenseman</td>
+<td align="right">11</td>
+</tr>
+<tr class="even">
+<td align="left">Forward</td>
+<td align="right">18</td>
+</tr>
+<tr class="odd">
+<td align="left">Goalie</td>
+<td align="right">2</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a><span class="kw">kable</span>(<span class="kw">table</span>(BluesRoster<span class="op">$</span>position.name, BluesRoster<span class="op">$</span>position.type))</span></code></pre></div>
+<table>
+<thead>
+<tr class="header">
+<th align="left"></th>
+<th align="right">Defenseman</th>
+<th align="right">Forward</th>
+<th align="right">Goalie</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Center</td>
+<td align="right">0</td>
+<td align="right">8</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">Defenseman</td>
+<td align="right">11</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">Goalie</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">2</td>
+</tr>
+<tr class="even">
+<td align="left">Left Wing</td>
+<td align="right">0</td>
+<td align="right">7</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">Right Wing</td>
+<td align="right">0</td>
+<td align="right">3</td>
+<td align="right">0</td>
+</tr>
+</tbody>
+</table>
+<h2 id="numerical-summaries">Numerical Summaries</h2>
+<p>Here are some numerical summaries on quantitative variables that I have created at different settings of categorical variables in the dataset.</p>
+<p>The first summary shows that teams amount more penalty minutes per game in the playoffs than in the regular season. When broken down further in the second summary, we can see that the Central division amounts considerably less penalty minutes per game than the other three divisions, and that the Pacific division not only averages the most penalty minutes per game in the playoffs, but also has the greatest jump in MPG from the regular season to the playoffs.</p>
+<p>The third summary shows averages and standard deviations for the shutout percentage, or the percent of time that the winning team does not allow the opposing team to score a goal all game. We can see a jump in percentages from the regular season to the playoffs, possibly because of more stifling defense. Also, the Eastern conference makes the better improvement between the two conferences between game types. The last summary breaks the conferences down into divisions. The Atlantic division in the Eastern conference seems to be the source of this jump, as their average shutout percentage in the playoffs is the highest among all groups, while the Pacific division has the lowest average with the highest standard deviation.</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a><span class="co">#Filtering out teams that are not current at this moment</span></span>
+<span id="cb14-2"><a href="#cb14-2"></a>joinedStats <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(teams.division.name <span class="op">!=</span><span class="st"> </span><span class="kw">is.na</span>(joinedStats<span class="op">$</span>teams.division.name)) -&gt;<span class="st"> </span>activeTeamStats</span>
+<span id="cb14-3"><a href="#cb14-3"></a></span>
+<span id="cb14-4"><a href="#cb14-4"></a><span class="co">#Returning numerical summaries</span></span>
+<span id="cb14-5"><a href="#cb14-5"></a>activeTeamStats <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">group_by</span>(data.gameTypeId) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">summarise</span>(<span class="dt">avgPenaltyMPG =</span> <span class="kw">round</span>(<span class="kw">mean</span>(penaltyMinsPerGame), <span class="dv">3</span>), <span class="dt">sdPenaltyMPG =</span> <span class="kw">round</span>(<span class="kw">sd</span>(penaltyMinsPerGame), <span class="dv">3</span>))</span>
+<span id="cb14-6"><a href="#cb14-6"></a></span>
+<span id="cb14-7"><a href="#cb14-7"></a>activeTeamStats <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">group_by</span>(data.gameTypeId, teams.conference.name, teams.division.name) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">summarise</span>(<span class="dt">avgPenaltyMPG =</span> <span class="kw">round</span>(<span class="kw">mean</span>(penaltyMinsPerGame), <span class="dv">3</span>), <span class="dt">sdPenaltyMPG =</span> <span class="kw">round</span>(<span class="kw">sd</span>(penaltyMinsPerGame), <span class="dv">3</span>))</span>
+<span id="cb14-8"><a href="#cb14-8"></a></span>
+<span id="cb14-9"><a href="#cb14-9"></a>activeTeamStats <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">group_by</span>(data.gameTypeId, teams.conference.name) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">summarise</span>(<span class="dt">avgShutoutPctg =</span> <span class="kw">round</span>(<span class="kw">mean</span>(shutoutPercentage), <span class="dv">3</span>), <span class="dt">sdShutoutPctg =</span> <span class="kw">round</span>(<span class="kw">sd</span>(shutoutPercentage), <span class="dv">3</span>))</span>
+<span id="cb14-10"><a href="#cb14-10"></a></span>
+<span id="cb14-11"><a href="#cb14-11"></a>activeTeamStats <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">group_by</span>(data.gameTypeId, teams.conference.name, teams.division.name) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">summarise</span>(<span class="dt">avgShutoutPctg =</span> <span class="kw">round</span>(<span class="kw">mean</span>(shutoutPercentage), <span class="dv">3</span>), <span class="dt">sdShutoutPctg =</span> <span class="kw">round</span>(<span class="kw">sd</span>(shutoutPercentage), <span class="dv">3</span>))</span></code></pre></div>
+<h2 id="plots">Plots</h2>
+<p>This section includes various plots giving a visual summary of the data.</p>
 
 </body>
 </html>

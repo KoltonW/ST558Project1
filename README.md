@@ -13,6 +13,8 @@ Kolton Wiebusch
       - [Joining of Datasets](#joining-of-datasets)
       - [New variables](#new-variables)
       - [Contingency tables](#contingency-tables)
+      - [Numerical Summaries](#numerical-summaries)
+      - [Plots](#plots)
 
 # Purpose
 
@@ -207,6 +209,8 @@ Creating new variables for later analysis
 joinedStats %>% mutate(goalDifferential = data.goalsFor - data.goalsAgainst) -> joinedStats
 joinedStats %>% mutate(penaltyMinsPerGame = data.penaltyMinutes/data.gamesPlayed) -> joinedStats
 joinedStats %>% mutate(winPercentage = data.wins/data.gamesPlayed) -> joinedStats
+joinedStats %>% mutate(shutoutPercentage = data.shutouts/data.wins) -> joinedStats
+joinedStats %>% mutate(shootoutWinPercentage = ((data.shootoutWins)/(data.shootoutWins + data.shootoutLosses))) -> joinedStats
 ```
 
 ``` r
@@ -228,33 +232,78 @@ goes a step further and gives a breakdown of the number of position
 names within each position type.
 
 ``` r
-table(RegularSeasonStats$teams.conference.name, RegularSeasonStats$teams.division.name)
+kable(table(RegularSeasonStats$teams.conference.name, RegularSeasonStats$teams.division.name))
 ```
 
-    ##          
-    ##           Atlantic Central Metropolitan Pacific
-    ##   Eastern        8       0            8       0
-    ##   Western        0       7            0       8
+|         | Atlantic | Central | Metropolitan | Pacific |
+| :------ | -------: | ------: | -----------: | ------: |
+| Eastern |        8 |       0 |            8 |       0 |
+| Western |        0 |       7 |            0 |       8 |
 
 ``` r
 #Return the Blues roster and break it down
 getNHLStats(19, mfirst) -> g
 as.data.frame(g[[31]]) -> BluesRoster
-table(BluesRoster$position.type)
+kable(table(BluesRoster$position.type))
 ```
 
-    ## 
-    ## Defenseman    Forward     Goalie 
-    ##         11         18          2
+| Var1       | Freq |
+| :--------- | ---: |
+| Defenseman |   11 |
+| Forward    |   18 |
+| Goalie     |    2 |
 
 ``` r
-table(BluesRoster$position.name, BluesRoster$position.type)
+kable(table(BluesRoster$position.name, BluesRoster$position.type))
 ```
 
-    ##             
-    ##              Defenseman Forward Goalie
-    ##   Center              0       8      0
-    ##   Defenseman         11       0      0
-    ##   Goalie              0       0      2
-    ##   Left Wing           0       7      0
-    ##   Right Wing          0       3      0
+|            | Defenseman | Forward | Goalie |
+| :--------- | ---------: | ------: | -----: |
+| Center     |          0 |       8 |      0 |
+| Defenseman |         11 |       0 |      0 |
+| Goalie     |          0 |       0 |      2 |
+| Left Wing  |          0 |       7 |      0 |
+| Right Wing |          0 |       3 |      0 |
+
+## Numerical Summaries
+
+Here are some numerical summaries on quantitative variables that I have
+created at different settings of categorical variables in the dataset.
+
+The first summary shows that teams amount more penalty minutes per game
+in the playoffs than in the regular season. When broken down further in
+the second summary, we can see that the Central division amounts
+considerably less penalty minutes per game than the other three
+divisions, and that the Pacific division not only averages the most
+penalty minutes per game in the playoffs, but also has the greatest jump
+in MPG from the regular season to the playoffs.
+
+The third summary shows averages and standard deviations for the shutout
+percentage, or the percent of time that the winning team does not allow
+the opposing team to score a goal all game. We can see a jump in
+percentages from the regular season to the playoffs, possibly because of
+more stifling defense. Also, the Eastern conference makes the better
+improvement between the two conferences between game types. The last
+summary breaks the conferences down into divisions. The Atlantic
+division in the Eastern conference seems to be the source of this jump,
+as their average shutout percentage in the playoffs is the highest among
+all groups, while the Pacific division has the lowest average with the
+highest standard deviation.
+
+``` r
+#Filtering out teams that are not current at this moment
+joinedStats %>% filter(teams.division.name != is.na(joinedStats$teams.division.name)) -> activeTeamStats
+
+#Returning numerical summaries
+activeTeamStats %>% group_by(data.gameTypeId) %>% summarise(avgPenaltyMPG = round(mean(penaltyMinsPerGame), 3), sdPenaltyMPG = round(sd(penaltyMinsPerGame), 3))
+
+activeTeamStats %>% group_by(data.gameTypeId, teams.conference.name, teams.division.name) %>% summarise(avgPenaltyMPG = round(mean(penaltyMinsPerGame), 3), sdPenaltyMPG = round(sd(penaltyMinsPerGame), 3))
+
+activeTeamStats %>% group_by(data.gameTypeId, teams.conference.name) %>% summarise(avgShutoutPctg = round(mean(shutoutPercentage), 3), sdShutoutPctg = round(sd(shutoutPercentage), 3))
+
+activeTeamStats %>% group_by(data.gameTypeId, teams.conference.name, teams.division.name) %>% summarise(avgShutoutPctg = round(mean(shutoutPercentage), 3), sdShutoutPctg = round(sd(shutoutPercentage), 3))
+```
+
+## Plots
+
+This section includes various plots giving a visual summary of the data.
