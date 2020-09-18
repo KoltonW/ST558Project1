@@ -13,8 +13,13 @@ rmarkdown::render("Project_1.Rmd", output_file = "README.md")
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, message = FALSE)
 ```
+# Purpose
+The purpose of this project is to create a vignette reading and summarizing data taken from NHL API's in order to analyze the data.
 
-# Required Packages 
+# Initial Setup
+This first section goes through the behind the scenes work of creating functions to pull in data for later use
+
+## Required Packages 
 These are the packages used in this project.
 ```{r packages, message=FALSE}
 library(tidyverse)
@@ -23,7 +28,7 @@ library(jsonlite)
 library(httr)
 ```
 
-# NHL Records API  
+## NHL Records API  
 This entails the creating of the functions to call on the NHL records data  
 ```{r endpoints1-2}
 getFranchise <- function(ID = NULL, ...){
@@ -108,7 +113,7 @@ getFranchiseSkaterRecords <- function(ID = NULL, ...){
 }
 ```
 
-# NHL Stats API
+## NHL Stats API
 This entails the creating of the function to call on the NHL stats data  
 ```{r statsEndpoint}
    #Setting up modifiers
@@ -148,7 +153,7 @@ getNHLStats <- function(ID = NULL, modifier = NULL, ...){
 }
 ```
 
-# Wrapper Function  
+## Wrapper Function  
 This function acts as a wrapper for all the previously discussed endpoints for NHL records and stats.  
 ```{r wrapper}
 getNHL <- function(FUN, ID = NULL, m = NULL, ...){
@@ -158,4 +163,29 @@ getNHL <- function(FUN, ID = NULL, m = NULL, ...){
   return(FUN(ID, modifier, ...))
 }
 ```
+
+# Exploratory Data Analysis
+The next section's purpose is to explore and analyze the NHL data with specifications detailed in the assignment instructions.
+
+## Joining of Datasets
+Joining two data sets(according to FranchiseId) for further data exploration
+```{r join}
+#Filtering for active franchises only and renaming to get ready for join
+getFranchiseTotals() %>% filter(data.activeFranchise == 1) %>% rename(franchiseId = data.franchiseId) -> fTT
+
+#narrowing down the stats data to return only a few variables
+getNHLStats() %>% rename(franchiseId = teams.franchiseId) %>% select(franchiseId, teams.division.name, teams.conference.name) -> fTT2
+
+#Full join on franchiseId
+full_join(fTT, fTT2) -> joinedStats
+```
+
+## New variables
+Creating new variables for later analysis
+```{r newVars}
+joinedStats %>% mutate(goalDifferential = data.goalsFor - data.goalsAgainst) -> joinedStats
+joinedStats %>% mutate(penaltyMinsPerGame = data.penaltyMinutes/data.gamesPlayed) -> joinedStats
+joinedStats %>% mutate(winPercentage = data.wins/data.gamesPlayed) -> joinedStats
+```
+
 

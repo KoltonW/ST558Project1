@@ -603,18 +603,31 @@ body {
 <h1 id="project-1">Project 1</h1>
 <p>Kolton Wiebusch 9/15/2020</p>
 <ul>
+<li><a href="#purpose">Purpose</a></li>
+<li><a href="#initial-setup">Initial Setup</a>
+<ul>
 <li><a href="#required-packages">Required Packages</a></li>
 <li><a href="#nhl-records-api">NHL Records API</a></li>
 <li><a href="#nhl-stats-api">NHL Stats API</a></li>
 <li><a href="#wrapper-function">Wrapper Function</a></li>
+</ul></li>
+<li><a href="#exploratory-data-analysis">Exploratory Data Analysis</a>
+<ul>
+<li><a href="#joining-of-datasets">Joining of Datasets</a></li>
+<li><a href="#new-variables">New variables</a></li>
+</ul></li>
 </ul>
-<h1 id="required-packages">Required Packages</h1>
+<h1 id="purpose">Purpose</h1>
+<p>The purpose of this project is to create a vignette reading and summarizing data taken from NHL API’s in order to analyze the data.</p>
+<h1 id="initial-setup">Initial Setup</h1>
+<p>This first section goes through the behind the scenes work of creating functions to pull in data for later use</p>
+<h2 id="required-packages">Required Packages</h2>
 <p>These are the packages used in this project.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="kw">library</span>(tidyverse)</span>
 <span id="cb1-2"><a href="#cb1-2"></a><span class="kw">library</span>(knitr)</span>
 <span id="cb1-3"><a href="#cb1-3"></a><span class="kw">library</span>(jsonlite)</span>
 <span id="cb1-4"><a href="#cb1-4"></a><span class="kw">library</span>(httr)</span></code></pre></div>
-<h1 id="nhl-records-api">NHL Records API</h1>
+<h2 id="nhl-records-api">NHL Records API</h2>
 <p>This entails the creating of the functions to call on the NHL records data</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a>getFranchise &lt;-<span class="st"> </span><span class="cf">function</span>(<span class="dt">ID =</span> <span class="ot">NULL</span>, ...){</span>
 <span id="cb2-2"><a href="#cb2-2"></a>  franchise &lt;-<span class="st"> </span><span class="kw">GET</span>(<span class="st">&quot;https://records.nhl.com/site/api/franchise&quot;</span>)</span>
@@ -686,7 +699,7 @@ body {
 <span id="cb5-13"><a href="#cb5-13"></a>  <span class="kw">return</span>(skater)</span>
 <span id="cb5-14"><a href="#cb5-14"></a>  }</span>
 <span id="cb5-15"><a href="#cb5-15"></a>}</span></code></pre></div>
-<h1 id="nhl-stats-api">NHL Stats API</h1>
+<h2 id="nhl-stats-api">NHL Stats API</h2>
 <p>This entails the creating of the function to call on the NHL stats data</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a>   <span class="co">#Setting up modifiers</span></span>
 <span id="cb6-2"><a href="#cb6-2"></a>  <span class="st">&quot;?expand=team.roster&quot;</span> -&gt;<span class="st"> </span>mfirst</span>
@@ -723,7 +736,7 @@ body {
 <span id="cb6-33"><a href="#cb6-33"></a>    }</span>
 <span id="cb6-34"><a href="#cb6-34"></a>  <span class="kw">return</span>(stats)</span>
 <span id="cb6-35"><a href="#cb6-35"></a>}</span></code></pre></div>
-<h1 id="wrapper-function">Wrapper Function</h1>
+<h2 id="wrapper-function">Wrapper Function</h2>
 <p>This function acts as a wrapper for all the previously discussed endpoints for NHL records and stats.</p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a>getNHL &lt;-<span class="st"> </span><span class="cf">function</span>(FUN, <span class="dt">ID =</span> <span class="ot">NULL</span>, <span class="dt">m =</span> <span class="ot">NULL</span>, ...){</span>
 <span id="cb7-2"><a href="#cb7-2"></a>  FUN &lt;-<span class="st"> </span><span class="kw">match.fun</span>(FUN)</span>
@@ -731,6 +744,23 @@ body {
 <span id="cb7-4"><a href="#cb7-4"></a>  modifier &lt;-<span class="st"> </span>m</span>
 <span id="cb7-5"><a href="#cb7-5"></a>  <span class="kw">return</span>(<span class="kw">FUN</span>(ID, modifier, ...))</span>
 <span id="cb7-6"><a href="#cb7-6"></a>}</span></code></pre></div>
+<h1 id="exploratory-data-analysis">Exploratory Data Analysis</h1>
+<p>The next section’s purpose is to explore and analyze the NHL data with specifications detailed in the assignment instructions.</p>
+<h2 id="joining-of-datasets">Joining of Datasets</h2>
+<p>Joining two data sets(according to FranchiseId) for further data exploration</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a><span class="co">#Filtering for active franchises only and renaming to get ready for join</span></span>
+<span id="cb8-2"><a href="#cb8-2"></a><span class="kw">getFranchiseTotals</span>() <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(data.activeFranchise <span class="op">==</span><span class="st"> </span><span class="dv">1</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">rename</span>(<span class="dt">franchiseId =</span> data.franchiseId) -&gt;<span class="st"> </span>fTT</span>
+<span id="cb8-3"><a href="#cb8-3"></a></span>
+<span id="cb8-4"><a href="#cb8-4"></a><span class="co">#narrowing down the stats data to return only a few variables</span></span>
+<span id="cb8-5"><a href="#cb8-5"></a><span class="kw">getNHLStats</span>() <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">rename</span>(<span class="dt">franchiseId =</span> teams.franchiseId) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">select</span>(franchiseId, teams.division.name, teams.conference.name) -&gt;<span class="st"> </span>fTT2</span>
+<span id="cb8-6"><a href="#cb8-6"></a></span>
+<span id="cb8-7"><a href="#cb8-7"></a><span class="co">#Full join on franchiseId</span></span>
+<span id="cb8-8"><a href="#cb8-8"></a><span class="kw">full_join</span>(fTT, fTT2) -&gt;<span class="st"> </span>joinedStats</span></code></pre></div>
+<h2 id="new-variables">New variables</h2>
+<p>Creating new variables for later analysis</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a>joinedStats <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">mutate</span>(<span class="dt">goalDifferential =</span> data.goalsFor <span class="op">-</span><span class="st"> </span>data.goalsAgainst) -&gt;<span class="st"> </span>joinedStats</span>
+<span id="cb9-2"><a href="#cb9-2"></a>joinedStats <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">mutate</span>(<span class="dt">penaltyMinsPerGame =</span> data.penaltyMinutes<span class="op">/</span>data.gamesPlayed) -&gt;<span class="st"> </span>joinedStats</span>
+<span id="cb9-3"><a href="#cb9-3"></a>joinedStats <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">mutate</span>(<span class="dt">winPercentage =</span> data.wins<span class="op">/</span>data.gamesPlayed) -&gt;<span class="st"> </span>joinedStats</span></code></pre></div>
 
 </body>
 </html>
