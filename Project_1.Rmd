@@ -249,10 +249,31 @@ aggression2 + geom_text(aes(label = franchiseAbbrv))  + geom_text(x = 20, y = .3
 This boxplot shows summaries of goal differential for each division in the NHL, playoff and regualar season combined. It appears that the Pacific division historically has the teams with the average worst goal differential, and has outliers that are the two lowest goal differential totals in the entire NHL. Oppositely, the Atlantic division has teams that appear to be historically dominant, with two teams that have a historic goal differential of about +2000 and +3500. 
 ```{r goalDifferentials}
 goaldiffs <- ggplot(activeTeamStats, aes(x = teams.division.name, y = goalDifferential))
-goaldiffs + geom_boxplot(fill = "blue") + xlab("NHL Divisions") + ggtitle("NHL Division Total Goal Differentials")
+goaldiffs + geom_boxplot(fill = "orange") + xlab("NHL Divisions") + ggtitle("NHL Division Total Goal Differentials")
 ```
 
 
+### St. Louis Blues Skater Records
+This bar plot shows the breakdown of records held by skaters (non-goalies) for the St. Louis Blues (*my favorite team*) by position (**Center, Defense, Left, and Right**). It also shows how many of the skaters that hold the record are actively playing now, broken down by position. 
+```{r skaters}
+s <- getFranchiseSkaterRecords("St. Louis Blues") %>% rename("Active_Player" = data.activePlayer) %>% group_by(data.positionCode, Active_Player) %>% summarise(count = n())
+skate <- ggplot(s, aes(x = data.positionCode, y = count))
+skate + geom_bar(aes(fill = Active_Player), stat = "identity", position = "dodge") + xlab("Position Code") + ggtitle("St. Louis Blues Skater Records by Position (Active vs Non-Active)")
+```
 
 
+### Regular Season Shutout Percentage by Conference
+The two following histograms portray the shutout percentages (percentage of total wins that are shutouts) for each team based on conference in the regular season. For the first histogram, Eastern Conference, it looks like the Montreal Canadians, Columbus Blue Jackets, and Boston Bruins had the only shutout percentages higher than 15%. New York Islanders and Pittsburgh Penguins were the lowly teams in the East for this category.
+
+For the second histogram, the Western Conference, the Nashville Predators and the Chicago Blackhawks led the pack in shutout percentage (both over 15%). The Edmonton Oilers finished last place by quite a decent margin in this category.
+
+```{r shutouts}
+east <- RegularSeasonStats %>% filter(teams.conference.name == "Eastern") 
+d <- ggplot(east, aes(x = franchiseAbbrv, y = shutoutPercentage))
+d + geom_col(color = "black", fill = "light blue") + labs(title = "Shutout Percentage per Team (Eastern Conference)", x = "Franchise Abbreviations") + ylim(0, 0.20)
+
+west <- RegularSeasonStats %>% filter(teams.conference.name == "Western")
+d2 <- ggplot(west, aes(x = franchiseAbbrv, y = shutoutPercentage))
+d2 + geom_col(color = "black", fill = "light green") + labs(title = "Shutout Percentage per Team (Western Conference)", x = "Franchise Abbreviations") + ylim(0, 0.20)
+```
 
