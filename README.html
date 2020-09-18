@@ -615,6 +615,7 @@ body {
 <ul>
 <li><a href="#joining-of-datasets">Joining of Datasets</a></li>
 <li><a href="#new-variables">New variables</a></li>
+<li><a href="#contingency-tables">Contingency tables</a></li>
 </ul></li>
 </ul>
 <h1 id="purpose">Purpose</h1>
@@ -747,20 +748,50 @@ body {
 <h1 id="exploratory-data-analysis">Exploratory Data Analysis</h1>
 <p>The next section’s purpose is to explore and analyze the NHL data with specifications detailed in the assignment instructions.</p>
 <h2 id="joining-of-datasets">Joining of Datasets</h2>
-<p>Joining two data sets(according to FranchiseId) for further data exploration</p>
+<p>Joining two data sets(according to franchiseAbbrv) for further data exploration</p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a><span class="co">#Filtering for active franchises only and renaming to get ready for join</span></span>
-<span id="cb8-2"><a href="#cb8-2"></a><span class="kw">getFranchiseTotals</span>() <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(data.activeFranchise <span class="op">==</span><span class="st"> </span><span class="dv">1</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">rename</span>(<span class="dt">franchiseId =</span> data.franchiseId) -&gt;<span class="st"> </span>fTT</span>
+<span id="cb8-2"><a href="#cb8-2"></a><span class="kw">getFranchiseTotals</span>() <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(data.activeFranchise <span class="op">==</span><span class="st"> </span><span class="dv">1</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">rename</span>(<span class="dt">franchiseAbbrv =</span> data.triCode) -&gt;<span class="st"> </span>fTT</span>
 <span id="cb8-3"><a href="#cb8-3"></a></span>
 <span id="cb8-4"><a href="#cb8-4"></a><span class="co">#narrowing down the stats data to return only a few variables</span></span>
-<span id="cb8-5"><a href="#cb8-5"></a><span class="kw">getNHLStats</span>() <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">rename</span>(<span class="dt">franchiseId =</span> teams.franchiseId) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">select</span>(franchiseId, teams.division.name, teams.conference.name) -&gt;<span class="st"> </span>fTT2</span>
+<span id="cb8-5"><a href="#cb8-5"></a><span class="kw">getNHLStats</span>() <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">rename</span>(<span class="dt">franchiseAbbrv =</span> teams.abbreviation) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">select</span>(franchiseAbbrv, teams.division.name, teams.conference.name) -&gt;<span class="st"> </span>fTT2</span>
 <span id="cb8-6"><a href="#cb8-6"></a></span>
-<span id="cb8-7"><a href="#cb8-7"></a><span class="co">#Full join on franchiseId</span></span>
+<span id="cb8-7"><a href="#cb8-7"></a><span class="co">#Full join on franchiseAbbrv</span></span>
 <span id="cb8-8"><a href="#cb8-8"></a><span class="kw">full_join</span>(fTT, fTT2) -&gt;<span class="st"> </span>joinedStats</span></code></pre></div>
 <h2 id="new-variables">New variables</h2>
 <p>Creating new variables for later analysis</p>
 <div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a>joinedStats <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">mutate</span>(<span class="dt">goalDifferential =</span> data.goalsFor <span class="op">-</span><span class="st"> </span>data.goalsAgainst) -&gt;<span class="st"> </span>joinedStats</span>
 <span id="cb9-2"><a href="#cb9-2"></a>joinedStats <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">mutate</span>(<span class="dt">penaltyMinsPerGame =</span> data.penaltyMinutes<span class="op">/</span>data.gamesPlayed) -&gt;<span class="st"> </span>joinedStats</span>
 <span id="cb9-3"><a href="#cb9-3"></a>joinedStats <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">mutate</span>(<span class="dt">winPercentage =</span> data.wins<span class="op">/</span>data.gamesPlayed) -&gt;<span class="st"> </span>joinedStats</span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a><span class="co">#This code chunk separates joinedStats into Regular season and playoff stats for active teams</span></span>
+<span id="cb10-2"><a href="#cb10-2"></a>joinedStats<span class="op">$</span>data.gameTypeId &lt;-<span class="st"> </span><span class="kw">as.factor</span>(joinedStats<span class="op">$</span>data.gameTypeId)</span>
+<span id="cb10-3"><a href="#cb10-3"></a><span class="kw">levels</span>(joinedStats<span class="op">$</span>data.gameTypeId) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;RegularSeason&quot;</span>, <span class="st">&quot;Playoffs&quot;</span>)</span>
+<span id="cb10-4"><a href="#cb10-4"></a>joinedStats <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(data.gameTypeId <span class="op">==</span><span class="st"> &quot;RegularSeason&quot;</span> <span class="op">&amp;</span><span class="st"> </span>teams.division.name <span class="op">!=</span><span class="st"> </span><span class="kw">is.na</span>(joinedStats<span class="op">$</span>teams.division.name)) -&gt;<span class="st"> </span>RegularSeasonStats</span>
+<span id="cb10-5"><a href="#cb10-5"></a>joinedStats <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(data.gameTypeId <span class="op">==</span><span class="st"> &quot;Playoffs&quot;</span> <span class="op">&amp;</span><span class="st"> </span>teams.division.name <span class="op">!=</span><span class="st"> </span><span class="kw">is.na</span>(joinedStats<span class="op">$</span>teams.division.name)) -&gt;<span class="st"> </span>PlayoffStats</span></code></pre></div>
+<h2 id="contingency-tables">Contingency tables</h2>
+<p>Here, some contingency tables are returned. For the first one, you can see a breakdown of how many teams are in each division and conference overall. For the second and third tables, I wanted to take a closer look at my <em>favorite</em> team, the <strong>St. Louis Blues</strong>. The second table gives a breakdown of their current roster by position type, and the third table goes a step further and gives a breakdown of the number of position names within each position type.</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a><span class="kw">table</span>(RegularSeasonStats<span class="op">$</span>teams.conference.name, RegularSeasonStats<span class="op">$</span>teams.division.name)</span></code></pre></div>
+<pre><code>##          
+##           Atlantic Central Metropolitan Pacific
+##   Eastern        8       0            8       0
+##   Western        0       7            0       8
+</code></pre>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a><span class="co">#Return the Blues roster and break it down</span></span>
+<span id="cb13-2"><a href="#cb13-2"></a><span class="kw">getNHLStats</span>(<span class="dv">19</span>, mfirst) -&gt;<span class="st"> </span>g</span>
+<span id="cb13-3"><a href="#cb13-3"></a><span class="kw">as.data.frame</span>(g[[<span class="dv">31</span>]]) -&gt;<span class="st"> </span>BluesRoster</span>
+<span id="cb13-4"><a href="#cb13-4"></a><span class="kw">table</span>(BluesRoster<span class="op">$</span>position.type)</span></code></pre></div>
+<pre><code>## 
+## Defenseman    Forward     Goalie 
+##         11         18          2
+</code></pre>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1"></a><span class="kw">table</span>(BluesRoster<span class="op">$</span>position.name, BluesRoster<span class="op">$</span>position.type)</span></code></pre></div>
+<pre><code>##             
+##              Defenseman Forward Goalie
+##   Center              0       8      0
+##   Defenseman         11       0      0
+##   Goalie              0       0      2
+##   Left Wing           0       7      0
+##   Right Wing          0       3      0
+</code></pre>
 
 </body>
 </html>

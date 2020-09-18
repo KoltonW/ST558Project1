@@ -12,6 +12,7 @@ Kolton Wiebusch
   - [Exploratory Data Analysis](#exploratory-data-analysis)
       - [Joining of Datasets](#joining-of-datasets)
       - [New variables](#new-variables)
+      - [Contingency tables](#contingency-tables)
 
 # Purpose
 
@@ -184,17 +185,17 @@ specifications detailed in the assignment instructions.
 
 ## Joining of Datasets
 
-Joining two data sets(according to FranchiseId) for further data
+Joining two data sets(according to franchiseAbbrv) for further data
 exploration
 
 ``` r
 #Filtering for active franchises only and renaming to get ready for join
-getFranchiseTotals() %>% filter(data.activeFranchise == 1) %>% rename(franchiseId = data.franchiseId) -> fTT
+getFranchiseTotals() %>% filter(data.activeFranchise == 1) %>% rename(franchiseAbbrv = data.triCode) -> fTT
 
 #narrowing down the stats data to return only a few variables
-getNHLStats() %>% rename(franchiseId = teams.franchiseId) %>% select(franchiseId, teams.division.name, teams.conference.name) -> fTT2
+getNHLStats() %>% rename(franchiseAbbrv = teams.abbreviation) %>% select(franchiseAbbrv, teams.division.name, teams.conference.name) -> fTT2
 
-#Full join on franchiseId
+#Full join on franchiseAbbrv
 full_join(fTT, fTT2) -> joinedStats
 ```
 
@@ -207,3 +208,53 @@ joinedStats %>% mutate(goalDifferential = data.goalsFor - data.goalsAgainst) -> 
 joinedStats %>% mutate(penaltyMinsPerGame = data.penaltyMinutes/data.gamesPlayed) -> joinedStats
 joinedStats %>% mutate(winPercentage = data.wins/data.gamesPlayed) -> joinedStats
 ```
+
+``` r
+#This code chunk separates joinedStats into Regular season and playoff stats for active teams
+joinedStats$data.gameTypeId <- as.factor(joinedStats$data.gameTypeId)
+levels(joinedStats$data.gameTypeId) <- c("RegularSeason", "Playoffs")
+joinedStats %>% filter(data.gameTypeId == "RegularSeason" & teams.division.name != is.na(joinedStats$teams.division.name)) -> RegularSeasonStats
+joinedStats %>% filter(data.gameTypeId == "Playoffs" & teams.division.name != is.na(joinedStats$teams.division.name)) -> PlayoffStats
+```
+
+## Contingency tables
+
+Here, some contingency tables are returned. For the first one, you can
+see a breakdown of how many teams are in each division and conference
+overall. For the second and third tables, I wanted to take a closer look
+at my *favorite* team, the **St. Louis Blues**. The second table gives a
+breakdown of their current roster by position type, and the third table
+goes a step further and gives a breakdown of the number of position
+names within each position type.
+
+``` r
+table(RegularSeasonStats$teams.conference.name, RegularSeasonStats$teams.division.name)
+```
+
+    ##          
+    ##           Atlantic Central Metropolitan Pacific
+    ##   Eastern        8       0            8       0
+    ##   Western        0       7            0       8
+
+``` r
+#Return the Blues roster and break it down
+getNHLStats(19, mfirst) -> g
+as.data.frame(g[[31]]) -> BluesRoster
+table(BluesRoster$position.type)
+```
+
+    ## 
+    ## Defenseman    Forward     Goalie 
+    ##         11         18          2
+
+``` r
+table(BluesRoster$position.name, BluesRoster$position.type)
+```
+
+    ##             
+    ##              Defenseman Forward Goalie
+    ##   Center              0       8      0
+    ##   Defenseman         11       0      0
+    ##   Goalie              0       0      2
+    ##   Left Wing           0       7      0
+    ##   Right Wing          0       3      0
