@@ -15,6 +15,9 @@ Kolton Wiebusch
       - [Contingency tables](#contingency-tables)
       - [Numerical Summaries](#numerical-summaries)
       - [Plots](#plots)
+          - [Aggression Plot](#aggression-plot)
+          - [Division Goal Differentials
+            Plot](#division-goal-differentials-plot)
 
 # Purpose
 
@@ -354,3 +357,44 @@ activeTeamStats %>% group_by(data.gameTypeId, teams.conference.name, teams.divis
 ## Plots
 
 This section includes various plots giving a visual summary of the data.
+
+### Aggression Plot
+
+These two scatter plots show how aggression(penalty minutes per game)
+correlates with winning(win percentage) in both the regular season and
+playoffs. There seems to be a slight negative correlation in the regular
+season, but flips to a slight positive correlation in the playoffs. In
+other words, it appears that there is a small indication that teams who
+are more aggressive and rough up their opponents have a better chance of
+winning in the playoffs.
+
+``` r
+aggression1 <- ggplot(RegularSeasonStats, aes(x = penaltyMinsPerGame, y = winPercentage))
+aggression1 + geom_text(aes(label = franchiseAbbrv))  + geom_text(x = 17, y = .55, size = 4, label = paste0("Correlation = ", round(cor(RegularSeasonStats$penaltyMinsPerGame, RegularSeasonStats$winPercentage), 2))) + ggtitle("Regular Season Win Percentage vs Penalty Minutes Per Game for All Teams")
+```
+
+![](Project_1_files/figure-gfm/aggression-1.png)<!-- -->
+
+``` r
+aggression2 <- ggplot(PlayoffStats, aes(x = penaltyMinsPerGame, y = winPercentage))
+aggression2 + geom_text(aes(label = franchiseAbbrv))  + geom_text(x = 20, y = .38, size = 4, label = paste0("Correlation = ", round(cor(PlayoffStats$penaltyMinsPerGame, PlayoffStats$winPercentage), 2))) + ggtitle("Playoff Win Percentage vs Penalty Minutes Per Game for All Teams")
+```
+
+![](Project_1_files/figure-gfm/aggression-2.png)<!-- -->
+
+### Division Goal Differentials Plot
+
+This boxplot shows summaries of goal differential for each division in
+the NHL, playoff and regualar season combined. It appears that the
+Pacific division historically has the teams with the average worst goal
+differential, and has outliers that are the two lowest goal differential
+totals in the entire NHL. Oppositely, the Atlantic division has teams
+that appear to be historically dominant, with two teams that have a
+historic goal differential of about +2000 and +3500.
+
+``` r
+goaldiffs <- ggplot(activeTeamStats, aes(x = teams.division.name, y = goalDifferential))
+goaldiffs + geom_boxplot(fill = "blue") + xlab("NHL Divisions") + ggtitle("NHL Division Total Goal Differentials")
+```
+
+![](Project_1_files/figure-gfm/goalDifferentials-1.png)<!-- -->
