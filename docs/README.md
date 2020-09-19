@@ -344,7 +344,7 @@ aggression1 <- ggplot(RegularSeasonStats, aes(x = penaltyMinsPerGame, y = winPer
 aggression1 + geom_text(aes(label = franchiseAbbrv))  + geom_text(x = 17, y = .55, size = 4, label = paste0("Correlation = ", round(cor(RegularSeasonStats$penaltyMinsPerGame, RegularSeasonStats$winPercentage), 2))) + ggtitle("Regular Season Win Percentage vs Penalty Minutes Per Game for All Teams")
 ```
 
-![](README_files/figure-gfm/aggression-1.png)<!-- -->
+![](aggression-1.png)<!-- -->
 
 ``` r
 aggression2 <- ggplot(PlayoffStats, aes(x = penaltyMinsPerGame, y = winPercentage))
