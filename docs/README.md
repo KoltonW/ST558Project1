@@ -393,14 +393,14 @@ aggression1 <- ggplot(RegularSeasonStats, aes(x = penaltyMinsPerGame, y = winPer
 aggression1 + geom_text(aes(label = franchiseAbbrv))  + geom_text(x = 17, y = .55, size = 4, label = paste0("Correlation = ", round(cor(RegularSeasonStats$penaltyMinsPerGame, RegularSeasonStats$winPercentage), 2))) + ggtitle("Regular Season Win Percentage vs Penalty Minutes Per Game for All Teams")
 ```
 
-![](README_files/figure-gfm/aggression-1.png)<!-- -->
+![](aggression-1.png)<!-- -->
 
 ``` r
 aggression2 <- ggplot(PlayoffStats, aes(x = penaltyMinsPerGame, y = winPercentage))
 aggression2 + geom_text(aes(label = franchiseAbbrv))  + geom_text(x = 20, y = .38, size = 4, label = paste0("Correlation = ", round(cor(PlayoffStats$penaltyMinsPerGame, PlayoffStats$winPercentage), 2))) + ggtitle("Playoff Win Percentage vs Penalty Minutes Per Game for All Teams")
 ```
 
-![](README_files/figure-gfm/aggression-2.png)<!-- -->
+![](aggression-2.png)<!-- -->
 
 ### Division Goal Differentials Plot
 
@@ -418,7 +418,7 @@ goaldiffs <- ggplot(activeTeamStats, aes(x = teams.division.name, y = goalDiffer
 goaldiffs + geom_boxplot(fill = "orange") + xlab("NHL Divisions") + ggtitle("NHL Division Total Goal Differentials")
 ```
 
-![](README_files/figure-gfm/goalDifferentials-1.png)<!-- -->
+![](goalDifferentials-1.png)<!-- -->
 
 ### St. Louis Blues Goalie Records
 
@@ -436,7 +436,7 @@ gap <- ggplot(ga, aes(x = data.mostGoalsAgainstOneGame))
 gap + geom_histogram(color = "black", fill = "brown", binwidth = 1) + labs(title = "St. Louis Blues' Goalie GA Records", x = "Most Goals Against in One Game")
 ```
 
-![](README_files/figure-gfm/histogram-1.png)<!-- -->
+![](histogram-1.png)<!-- -->
 
 ### St. Louis Blues Skater Records
 
@@ -453,7 +453,7 @@ skate <- ggplot(s, aes(x = data.positionCode, y = count))
 skate + geom_bar(aes(fill = Active_Player), stat = "identity", position = "dodge") + xlab("Position Code") + ggtitle("St. Louis Blues Skater Records by Position (Active vs Non-Active)")
 ```
 
-![](README_files/figure-gfm/skaters-1.png)<!-- -->
+![](skaters-1.png)<!-- -->
 
 ### Regular Season Shutout Percentage by Conference
 
@@ -477,7 +477,7 @@ d <- ggplot(east, aes(x = franchiseAbbrv, y = shutoutPercentage))
 d + geom_col(color = "black", fill = "light blue") + labs(title = "Shutout Percentage per Team (Eastern Conference)", x = "Franchise Abbreviations") + ylim(0, 0.20)
 ```
 
-![](README_files/figure-gfm/shutouts-1.png)<!-- -->
+![](shutouts-1.png)<!-- -->
 
 ``` r
 west <- RegularSeasonStats %>% filter(teams.conference.name == "Western")
@@ -485,7 +485,7 @@ d2 <- ggplot(west, aes(x = franchiseAbbrv, y = shutoutPercentage))
 d2 + geom_col(color = "black", fill = "light green") + labs(title = "Shutout Percentage per Team (Western Conference)", x = "Franchise Abbreviations") + ylim(0, 0.20)
 ```
 
-![](README_files/figure-gfm/shutouts-2.png)<!-- -->
+![](shutouts-2.png)<!-- -->
 
 ### Regular Season Clutch Percentages (Shootout Win Percentage)
 
@@ -509,7 +509,7 @@ M2 <- ggplot(M, aes(x = franchiseAbbrv, y = shootoutWinPercentage))
 M2 + geom_col(color = "black", fill = "blue") + labs(title = "Shootout Win Percentage per Team (Metropolitan Division)", x = "Franchise Abbreviation") + ylim(0, 0.7)
 ```
 
-![](README_files/figure-gfm/clutch-1.png)<!-- -->
+![](clutch-1.png)<!-- -->
 
 ``` r
 A <- RegularSeasonStats %>% filter(teams.division.name == "Atlantic")
@@ -517,7 +517,7 @@ A2 <- ggplot(A, aes(x = franchiseAbbrv, y = shootoutWinPercentage))
 A2 + geom_col(color = "black", fill = "red") + labs(title = "Shootout Win Percentage per Team (Atlantic Division)", x = "Franchise Abbreviation") + ylim(0, 0.7)
 ```
 
-![](README_files/figure-gfm/clutch-2.png)<!-- -->
+![](clutch-2.png)<!-- -->
 
 ``` r
 C <- RegularSeasonStats %>% filter(teams.division.name == "Central")
@@ -525,7 +525,7 @@ C2 <- ggplot(C, aes(x = franchiseAbbrv, y = shootoutWinPercentage))
 C2 + geom_col(color = "black", fill = "purple") + labs(title = "Shootout Win Percentage per Team (Central Division)", x = "Franchise Abbreviation") + ylim(0, 0.7)
 ```
 
-![](README_files/figure-gfm/clutch-3.png)<!-- -->
+![](clutch-3.png)<!-- -->
 
 ``` r
 P <- RegularSeasonStats %>% filter(teams.division.name == "Pacific")
@@ -533,7 +533,7 @@ P2 <- ggplot(P, aes(x = franchiseAbbrv, y = shootoutWinPercentage))
 P2 + geom_col(color = "black", fill = "orange") + labs(title = "Shootout Win Percentage per Team (Pacific Division)", x = "Franchise Abbreviation") + ylim(0, 0.7)
 ```
 
-![](README_files/figure-gfm/clutch-4.png)<!-- -->
+![](clutch-4.png)<!-- -->
 
 ``` r
 #End of Project 1
