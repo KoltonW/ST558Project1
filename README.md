@@ -314,14 +314,62 @@ highest standard deviation.
 joinedStats %>% filter(teams.division.name != is.na(joinedStats$teams.division.name)) -> activeTeamStats
 
 #Returning numerical summaries
-activeTeamStats %>% group_by(data.gameTypeId) %>% summarise(avgPenaltyMPG = round(mean(penaltyMinsPerGame), 3), sdPenaltyMPG = round(sd(penaltyMinsPerGame), 3))
+activeTeamStats %>% group_by(data.gameTypeId) %>% summarise(avgPenaltyMPG = round(mean(penaltyMinsPerGame), 3), sdPenaltyMPG = round(sd(penaltyMinsPerGame), 3)) -> ats1
 
-activeTeamStats %>% group_by(data.gameTypeId, teams.conference.name, teams.division.name) %>% summarise(avgPenaltyMPG = round(mean(penaltyMinsPerGame), 3), sdPenaltyMPG = round(sd(penaltyMinsPerGame), 3))
-
-activeTeamStats %>% group_by(data.gameTypeId, teams.conference.name) %>% summarise(avgShutoutPctg = round(mean(shutoutPercentage), 3), sdShutoutPctg = round(sd(shutoutPercentage), 3))
-
-activeTeamStats %>% group_by(data.gameTypeId, teams.conference.name, teams.division.name) %>% summarise(avgShutoutPctg = round(mean(shutoutPercentage), 3), sdShutoutPctg = round(sd(shutoutPercentage), 3))
+kable(ats1)
 ```
+
+| data.gameTypeId | avgPenaltyMPG | sdPenaltyMPG |
+| :-------------- | ------------: | -----------: |
+| RegularSeason   |        13.909 |        2.500 |
+| Playoffs        |        15.133 |        3.637 |
+
+``` r
+activeTeamStats %>% group_by(data.gameTypeId, teams.conference.name, teams.division.name) %>% summarise(avgPenaltyMPG = round(mean(penaltyMinsPerGame), 3), sdPenaltyMPG = round(sd(penaltyMinsPerGame), 3)) -> ats2
+
+kable(ats2)
+```
+
+| data.gameTypeId | teams.conference.name | teams.division.name | avgPenaltyMPG | sdPenaltyMPG |
+| :-------------- | :-------------------- | :------------------ | ------------: | -----------: |
+| RegularSeason   | Eastern               | Atlantic            |        13.922 |        0.783 |
+| RegularSeason   | Eastern               | Metropolitan        |        14.709 |        2.340 |
+| RegularSeason   | Western               | Central             |        12.770 |        1.904 |
+| RegularSeason   | Western               | Pacific             |        14.094 |        3.940 |
+| Playoffs        | Eastern               | Atlantic            |        15.230 |        1.527 |
+| Playoffs        | Eastern               | Metropolitan        |        15.776 |        3.578 |
+| Playoffs        | Western               | Central             |        13.326 |        3.538 |
+| Playoffs        | Western               | Pacific             |        15.972 |        5.125 |
+
+``` r
+activeTeamStats %>% group_by(data.gameTypeId, teams.conference.name) %>% summarise(avgShutoutPctg = round(mean(shutoutPercentage), 3), sdShutoutPctg = round(sd(shutoutPercentage), 3)) -> ats3
+
+kable(ats3)
+```
+
+| data.gameTypeId | teams.conference.name | avgShutoutPctg | sdShutoutPctg |
+| :-------------- | :-------------------- | -------------: | ------------: |
+| RegularSeason   | Eastern               |          0.131 |         0.020 |
+| RegularSeason   | Western               |          0.130 |         0.023 |
+| Playoffs        | Eastern               |          0.155 |         0.031 |
+| Playoffs        | Western               |          0.143 |         0.068 |
+
+``` r
+activeTeamStats %>% group_by(data.gameTypeId, teams.conference.name, teams.division.name) %>% summarise(avgShutoutPctg = round(mean(shutoutPercentage), 3), sdShutoutPctg = round(sd(shutoutPercentage), 3)) -> ats4
+
+kable(ats4)
+```
+
+| data.gameTypeId | teams.conference.name | teams.division.name | avgShutoutPctg | sdShutoutPctg |
+| :-------------- | :-------------------- | :------------------ | -------------: | ------------: |
+| RegularSeason   | Eastern               | Atlantic            |          0.139 |         0.017 |
+| RegularSeason   | Eastern               | Metropolitan        |          0.122 |         0.021 |
+| RegularSeason   | Western               | Central             |          0.139 |         0.017 |
+| RegularSeason   | Western               | Pacific             |          0.122 |         0.025 |
+| Playoffs        | Eastern               | Atlantic            |          0.162 |         0.025 |
+| Playoffs        | Eastern               | Metropolitan        |          0.148 |         0.037 |
+| Playoffs        | Western               | Central             |          0.149 |         0.034 |
+| Playoffs        | Western               | Pacific             |          0.138 |         0.091 |
 
 ## Plots
 
