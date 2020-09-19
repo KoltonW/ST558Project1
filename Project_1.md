@@ -18,10 +18,14 @@ Kolton Wiebusch
           - [Aggression Plot](#aggression-plot)
           - [Division Goal Differentials
             Plot](#division-goal-differentials-plot)
+          - [St. Louis Blues Goalie
+            Records](#st.-louis-blues-goalie-records)
           - [St. Louis Blues Skater
             Records](#st.-louis-blues-skater-records)
           - [Regular Season Shutout Percentage by
             Conference](#regular-season-shutout-percentage-by-conference)
+          - [Regular Season Clutch Percentages (Shootout Win
+            Percentage)](#regular-season-clutch-percentages-shootout-win-percentage)
 
 # Purpose
 
@@ -50,6 +54,7 @@ This entails the creating of the functions to call on the NHL records
 data
 
 ``` r
+#Creating function to return franchise details
 getFranchise <- function(ID = NULL, ...){
   franchise <- GET("https://records.nhl.com/site/api/franchise")
   franchise <- content(franchise, "text")
@@ -63,6 +68,7 @@ getFranchise <- function(ID = NULL, ...){
   return(franchise)
 } 
 
+#Creating function to return franchise stats
 getFranchiseTotals <- function(ID = NULL, ...){
   totals <- GET("https://records.nhl.com/site/api/franchise-team-totals")
   totals <- content(totals, "text")
@@ -78,6 +84,7 @@ getFranchiseTotals <- function(ID = NULL, ...){
 ```
 
 ``` r
+#Creating function to return season records for a franchise
 getFranchiseSeasonRecords <- function(ID = NULL, ...){
   if(is.character(ID)){
   recordsURL <- GET("https://records.nhl.com/site/api/franchise-season-records")
@@ -96,6 +103,7 @@ getFranchiseSeasonRecords <- function(ID = NULL, ...){
 ```
 
 ``` r
+#Creating function to return goalie records for a franchise
 getFranchiseGoalieRecords <- function(ID = NULL, ...){
     if(is.character(ID)){
   goalie <- GET("https://records.nhl.com/site/api/franchise-goalie-records")
@@ -114,6 +122,7 @@ getFranchiseGoalieRecords <- function(ID = NULL, ...){
 ```
 
 ``` r
+#Creating function to return skater records for a franchise
 getFranchiseSkaterRecords <- function(ID = NULL, ...){
   if(is.character(ID)){
   skater <- GET("https://records.nhl.com/site/api/franchise-skater-records")
@@ -179,6 +188,7 @@ This function acts as a wrapper for all the previously discussed
 endpoints for NHL records and stats.
 
 ``` r
+#Creating wrapper function that can take in any previous functions created along with inputs
 getNHL <- function(FUN, ID = NULL, m = NULL, ...){
   FUN <- match.fun(FUN)
   ID <- ID
@@ -213,6 +223,7 @@ full_join(fTT, fTT2) -> joinedStats
 Creating new variables for later analysis
 
 ``` r
+#Creating new variables for use in data analysis
 joinedStats %>% mutate(goalDifferential = data.goalsFor - data.goalsAgainst) -> joinedStats
 joinedStats %>% mutate(penaltyMinsPerGame = data.penaltyMinutes/data.gamesPlayed) -> joinedStats
 joinedStats %>% mutate(winPercentage = data.wins/data.gamesPlayed) -> joinedStats
@@ -239,6 +250,7 @@ goes a step further and gives a breakdown of the number of position
 names within each position type.
 
 ``` r
+#Creates a table to show breakdown of NHL conferences and divisions
 kable(table(RegularSeasonStats$teams.conference.name, RegularSeasonStats$teams.division.name))
 ```
 
@@ -373,6 +385,8 @@ are more aggressive and rough up their opponents have a better chance of
 winning in the playoffs.
 
 ``` r
+#Creating scatter plots with franchise abbreviations for text points across the plot based on penalty minutes per game by win percantage for regular season and playoffs
+
 aggression1 <- ggplot(RegularSeasonStats, aes(x = penaltyMinsPerGame, y = winPercentage))
 aggression1 + geom_text(aes(label = franchiseAbbrv))  + geom_text(x = 17, y = .55, size = 4, label = paste0("Correlation = ", round(cor(RegularSeasonStats$penaltyMinsPerGame, RegularSeasonStats$winPercentage), 2))) + ggtitle("Regular Season Win Percentage vs Penalty Minutes Per Game for All Teams")
 ```
@@ -397,11 +411,30 @@ that appear to be historically dominant, with two teams that have a
 historic goal differential of about +2000 and +3500.
 
 ``` r
+#Creating boxplot to show goal differentials for regular season and playoffs by division
 goaldiffs <- ggplot(activeTeamStats, aes(x = teams.division.name, y = goalDifferential))
 goaldiffs + geom_boxplot(fill = "orange") + xlab("NHL Divisions") + ggtitle("NHL Division Total Goal Differentials")
 ```
 
 ![](Project_1_files/figure-gfm/goalDifferentials-1.png)<!-- -->
+
+### St. Louis Blues Goalie Records
+
+This histogram portrays the St. Louis Blues goalies’ goals against in
+one game records. 11 goalies for the Blues have had 6 goals scored
+against them in a game, and that is the most common amount. The data
+appears slightly skewed to the right, as the frequency to the right of
+this most common number is higher than to the left. 3 unlucky keepers
+had 10 goals scored against them in one game.
+
+``` r
+#Creating histogram to show goals against records for the Blues goalies
+ga <-getFranchiseGoalieRecords(18)
+gap <- ggplot(ga, aes(x = data.mostGoalsAgainstOneGame))
+gap + geom_histogram(color = "black", fill = "brown", binwidth = 1) + labs(title = "St. Louis Blues' Goalie GA Records", x = "Most Goals Against in One Game")
+```
+
+![](Project_1_files/figure-gfm/histogram-1.png)<!-- -->
 
 ### St. Louis Blues Skater Records
 
@@ -412,6 +445,7 @@ skaters that hold the record are actively playing now, broken down by
 position.
 
 ``` r
+#Creating bar plot to show breakdown of records held by skaters for the Blues based on active or non active
 s <- getFranchiseSkaterRecords("St. Louis Blues") %>% rename("Active_Player" = data.activePlayer) %>% group_by(data.positionCode, Active_Player) %>% summarise(count = n())
 skate <- ggplot(s, aes(x = data.positionCode, y = count))
 skate + geom_bar(aes(fill = Active_Player), stat = "identity", position = "dodge") + xlab("Position Code") + ggtitle("St. Louis Blues Skater Records by Position (Active vs Non-Active)")
@@ -421,20 +455,21 @@ skate + geom_bar(aes(fill = Active_Player), stat = "identity", position = "dodge
 
 ### Regular Season Shutout Percentage by Conference
 
-The two following histograms portray the shutout percentages (percentage
+The two following bar plots portray the shutout percentages (percentage
 of total wins that are shutouts) for each team based on conference in
-the regular season. For the first histogram, Eastern Conference, it
-looks like the Montreal Canadians, Columbus Blue Jackets, and Boston
-Bruins had the only shutout percentages higher than 15%. New York
-Islanders and Pittsburgh Penguins were the lowly teams in the East for
-this category.
+the regular season. For the first bar plot, Eastern Conference, it looks
+like the Montreal Canadians, Columbus Blue Jackets, and Boston Bruins
+had the only shutout percentages higher than 15%. New York Islanders and
+Pittsburgh Penguins were the lowly teams in the East for this category.
 
-For the second histogram, the Western Conference, the Nashville
-Predators and the Chicago Blackhawks led the pack in shutout percentage
-(both over 15%). The Edmonton Oilers finished last place by quite a
-decent margin in this category.
+For the second bar plot, the Western Conference, the Nashville Predators
+and the Chicago Blackhawks led the pack in shutout percentage (both over
+15%). The Edmonton Oilers finished last place by quite a decent margin
+in this category.
 
 ``` r
+#Creating bar plots for shutout percentages in the regular season by conference
+
 east <- RegularSeasonStats %>% filter(teams.conference.name == "Eastern") 
 d <- ggplot(east, aes(x = franchiseAbbrv, y = shutoutPercentage))
 d + geom_col(color = "black", fill = "light blue") + labs(title = "Shutout Percentage per Team (Eastern Conference)", x = "Franchise Abbreviations") + ylim(0, 0.20)
@@ -449,3 +484,51 @@ d2 + geom_col(color = "black", fill = "light green") + labs(title = "Shutout Per
 ```
 
 ![](Project_1_files/figure-gfm/shutouts-2.png)<!-- -->
+
+### Regular Season Clutch Percentages (Shootout Win Percentage)
+
+These last four bar plots show the ability of teams to perform well in
+the clutch, or how often they win their OT shootouts. It is broken down
+by teams in each division for further inspection.
+
+Overall, the Colorado Avalanche of the Central division dominated
+shootouts, being the only team in the NHL to win over 60% of the time in
+their shootouts. Also, the Central division as a whole seemed to perform
+best in shootouts, while the Atlantic division was on the bottom of the
+list. The other division “winners” were the Pittsburgh Penguins of the
+Metropolitan division, the Tampa Bay Lightning of the Atlantic division,
+and the Vegas Golden Knights of the Pacific division.
+
+``` r
+#Creating bar plots to show shootout Win percentage of teams in the regular season broken down into divisions
+
+M <- RegularSeasonStats %>% filter(teams.division.name == "Metropolitan")
+M2 <- ggplot(M, aes(x = franchiseAbbrv, y = shootoutWinPercentage))
+M2 + geom_col(color = "black", fill = "blue") + labs(title = "Shootout Win Percentage per Team (Metropolitan Division)", x = "Franchise Abbreviation") + ylim(0, 0.7)
+```
+
+![](Project_1_files/figure-gfm/clutch-1.png)<!-- -->
+
+``` r
+A <- RegularSeasonStats %>% filter(teams.division.name == "Atlantic")
+A2 <- ggplot(A, aes(x = franchiseAbbrv, y = shootoutWinPercentage))
+A2 + geom_col(color = "black", fill = "red") + labs(title = "Shootout Win Percentage per Team (Atlantic Division)", x = "Franchise Abbreviation") + ylim(0, 0.7)
+```
+
+![](Project_1_files/figure-gfm/clutch-2.png)<!-- -->
+
+``` r
+C <- RegularSeasonStats %>% filter(teams.division.name == "Central")
+C2 <- ggplot(C, aes(x = franchiseAbbrv, y = shootoutWinPercentage))
+C2 + geom_col(color = "black", fill = "purple") + labs(title = "Shootout Win Percentage per Team (Central Division)", x = "Franchise Abbreviation") + ylim(0, 0.7)
+```
+
+![](Project_1_files/figure-gfm/clutch-3.png)<!-- -->
+
+``` r
+P <- RegularSeasonStats %>% filter(teams.division.name == "Pacific")
+P2 <- ggplot(P, aes(x = franchiseAbbrv, y = shootoutWinPercentage))
+P2 + geom_col(color = "black", fill = "orange") + labs(title = "Shootout Win Percentage per Team (Pacific Division)", x = "Franchise Abbreviation") + ylim(0, 0.7)
+```
+
+![](Project_1_files/figure-gfm/clutch-4.png)<!-- -->
