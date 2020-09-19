@@ -323,5 +323,7 @@ C2 + geom_col(color = "black", fill = "purple") + labs(title = "Shootout Win Per
 P <- RegularSeasonStats %>% filter(teams.division.name == "Pacific")
 P2 <- ggplot(P, aes(x = franchiseAbbrv, y = shootoutWinPercentage))
 P2 + geom_col(color = "black", fill = "orange") + labs(title = "Shootout Win Percentage per Team (Pacific Division)", x = "Franchise Abbreviation") + ylim(0, 0.7)
+
+#End of Project 1
 ```
 

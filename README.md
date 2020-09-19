@@ -485,3 +485,7 @@ P2 + geom_col(color = "black", fill = "orange") + labs(title = "Shootout Win Per
 ```
 
 ![](README_files/figure-gfm/clutch-4.png)<!-- -->
+
+``` r
+#End of Project 1
+```
