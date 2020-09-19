@@ -42,6 +42,7 @@ functions to pull in data for later use
 These are the packages used in this project.
 
 ``` r
+#Required packages
 library(tidyverse)
 library(knitr)
 library(jsonlite)

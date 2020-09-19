@@ -22,6 +22,7 @@ This first section goes through the behind the scenes work of creating functions
 ## Required Packages 
 These are the packages used in this project.
 ```{r packages, message=FALSE}
+#Required packages
 library(tidyverse)
 library(knitr)
 library(jsonlite)
